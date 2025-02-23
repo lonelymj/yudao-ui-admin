@@ -60,3 +60,9 @@ export const deleteTenant = (id: number) => {
 export const exportTenant = (params: TenantExportReqVO) => {
   return request.download({ url: '/system/tenant/export-excel', params })
 }
+
+// 查询租户列表
+export const getTenantSelectList = () => {
+  return request.get({ url: '/system/tenant/get-select-list' })
+}
+

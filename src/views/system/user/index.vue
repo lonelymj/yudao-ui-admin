@@ -3,7 +3,7 @@
     <!-- 左侧部门树 -->
     <el-col :span="4" :xs="24">
       <ContentWrap class="h-1/1">
-        <DeptTree @node-click="handleDeptNodeClick" />
+        <DeptTree @node-click="handleDeptNodeClick" :tenantId = "tenantId" />
       </ContentWrap>
     </el-col>
     <el-col :span="20" :xs="24">
@@ -16,6 +16,27 @@
           :inline="true"
           label-width="68px"
         >
+          <el-form-item label="商户" prop="tenantId">
+            <el-select
+              v-model="queryParams.tenantId"
+              placeholder="商户名称"
+              clearable
+              class="!w-240px"
+            >
+              <el-option
+                selected
+                :key="0"
+                label="请选择商户"
+                :value="0"
+              />
+              <el-option
+                v-for="dict in tenantList"
+                :key="dict.id"
+                :label="dict.name"
+                :value="dict.id"
+              />
+            </el-select>
+          </el-form-item>
           <el-form-item label="用户名称" prop="username">
             <el-input
               v-model="queryParams.username"
@@ -202,6 +223,7 @@ import { dateFormatter } from '@/utils/formatTime'
 import download from '@/utils/download'
 import { CommonStatusEnum } from '@/utils/constants'
 import * as UserApi from '@/api/system/user'
+import { TenantVO, getTenantSelectList } from '@/api/system/tenant'
 import UserForm from './UserForm.vue'
 import UserImportForm from './UserImportForm.vue'
 import UserAssignRoleForm from './UserAssignRoleForm.vue'
@@ -222,9 +244,12 @@ const queryParams = reactive({
   mobile: undefined,
   status: undefined,
   deptId: undefined,
-  createTime: []
+  createTime: [],
+  tenantId: 0
 })
 const queryFormRef = ref() // 搜索的表单
+const tenantList = ref<TenantVO[]>([])
+const tenantId = ref(0)
 
 /** 查询列表 */
 const getList = async () => {
@@ -238,9 +263,15 @@ const getList = async () => {
   }
 }
 
+const getTenantList = async () => {
+  const data = await getTenantSelectList()
+  tenantList.value = data
+}
+
 /** 搜索按钮操作 */
 const handleQuery = () => {
   queryParams.pageNo = 1
+  tenantId.value = queryParams.tenantId
   getList()
 }
 
@@ -355,5 +386,6 @@ const handleRole = (row: UserApi.UserVO) => {
 /** 初始化 */
 onMounted(() => {
   getList()
+  getTenantList()
 })
 </script>

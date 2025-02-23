@@ -25,16 +25,22 @@
 import { ElTree } from 'element-plus'
 import * as DeptApi from '@/api/system/dept'
 import { defaultProps, handleTree } from '@/utils/tree'
+import { propTypes } from '@/utils/propTypes'
 
 defineOptions({ name: 'SystemUserDeptTree' })
+
+const props = defineProps({
+  tenantId: propTypes.number.def(0)
+})
 
 const deptName = ref('')
 const deptList = ref<Tree[]>([]) // 树形结构
 const treeRef = ref<InstanceType<typeof ElTree>>()
 
 /** 获得部门树 */
-const getTree = async () => {
-  const res = await DeptApi.getSimpleDeptList()
+const getTree = async (tenantId: number) => {
+  // const res = await DeptApi.getSimpleDeptList()
+  const res = await DeptApi.getSimpleDeptList(tenantId)
   deptList.value = []
   deptList.value.push(...handleTree(res))
 }
@@ -56,8 +62,15 @@ watch(deptName, (val) => {
   treeRef.value!.filter(val)
 })
 
+
+watch(props, async (val) => {
+  const tenantId = val.tenantId
+  console.log(tenantId)
+  await getTree(tenantId)
+})
+
 /** 初始化 */
 onMounted(async () => {
-  await getTree()
+  await getTree(props.tenantId)
 })
 </script>
